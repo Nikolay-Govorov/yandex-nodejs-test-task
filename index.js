@@ -1,7 +1,7 @@
 ;(function () {
   const DISABLED = 'disabled';
 
-  const getRandomRoute = () => {
+  const getAPIRoute = () => {
     const getRandom = (min, max) => Math.floor(Math.random() * (max - min + 1) + min);
 
     const routes = ['success', 'error', 'progress'];
@@ -129,16 +129,14 @@
       let resolve = null;
 
       (function send() {
-        const route = getRandomRoute();
-
-        window.fetch(`./fake-api/${route}.json`, {
+        window.fetch(`./fake-api/${getAPIRoute()}.json`, {
           method: 'GET',
           mode: 'no-cors',
         })
           .then(response => response.json())
           .then((data) => {
             if (data.status === 'progress') {
-              setTimeout(send.bind(null, route, resolve), data.timeout); return;
+              setTimeout(send, data.timeout); return;
             }
 
             if (data.status === 'error') {
