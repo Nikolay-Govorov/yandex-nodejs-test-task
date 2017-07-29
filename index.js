@@ -1,4 +1,6 @@
 ;(function () {
+  const DISABLED = 'disabled';
+
   const getRandomRoute = () => {
     const getRandom = (min, max) => Math.floor(Math.random() * (max - min + 1) + min);
 
@@ -94,8 +96,9 @@
   }
 
   class Form {
-    constructor({ form, resultContainer }) {
+    constructor({ form, resultContainer, CSSClasses }) {
       this.form = form;
+      this.classes = CSSClasses;
       this.resultContainer = resultContainer;
 
       this.inputs = {
@@ -124,17 +127,18 @@
 
     fetch() {
       let resolve = null;
-      const readyPromise = new Promise((r) => { resolve = r });
 
-      const send = (localeRoute = getRandomRoute(), reolve) => {
-        window.fetch(`./fake-api/${localeRoute}.json`, {
+      (function send() {
+        const route = getRandomRoute();
+
+        window.fetch(`./fake-api/${route}.json`, {
           method: 'GET',
           mode: 'no-cors',
         })
           .then(response => response.json())
           .then((data) => {
             if (data.status === 'progress') {
-              setTimeout(send.bind(null, getRandomRoute(), resolve), data.timeout); return;
+              setTimeout(send.bind(null, route, resolve), data.timeout); return;
             }
 
             if (data.status === 'error') {
@@ -143,16 +147,13 @@
 
             resolve(({ status: 'success' }));
           });
-      };
+      })();
 
-      send(undefined, resolve);
-
-      return readyPromise;
+      return new Promise((r) => { resolve = r });
     }
 
     validate() {
       const errorFields = Object.keys(this.inputs).reduce((errorFields, input) => {
-        const inputValue = this.form[input].value;
         const isValidInput = this.inputs[input].isValid();
 
         if (!isValidInput) {
@@ -166,18 +167,18 @@
     }
 
     submit() {
-      // Clear form
+      // (1) Clear form
       ['success', 'error'].forEach(deletedClass => this.form.classList.remove(deletedClass));
 
       Object.keys(this.inputs).forEach((inputName) => {
         this.form[inputName].classList.remove('error');
       });
 
-      this.form.submitButton.removeAttribute('disabled');
+      this.form.submitButton.removeAttribute(DISABLED);
 
       this.resultContainer.innerText = '';
 
-      // Validate
+      // (2) Validate
       const { isValid, errorFields } = this.validate();
 
       errorFields.forEach((inputName) => {
@@ -188,22 +189,30 @@
         return;
       }
 
-      // Send data
-      this.form.submitButton.setAttribute('disabled', '');
+      // (3) Send data
+      this.form.submitButton.setAttribute(DISABLED, DISABLED);
 
-      this.fetch()
-        .then(({ status, message = 'Success' }) => {
-          this.form.classList.add(status);
+      this.fetch().then(({ status, message = 'Success' }) => {
+        this.form.classList.add(status);
 
-          this.resultContainer.innerText = message;
+        this.resultContainer.innerText = message;
 
-          this.form.submitButton.removeAttribute('disabled');
-        });
+        this.form.submitButton.removeAttribute(DISABLED);
+      });
     }
   }
 
   // Public methods
   const form = new Form({
+    CSSClasses: {
+      form: {
+        error: 'error',
+      },
+      input: {
+        error: 'error',
+        success: 'success',
+      },
+    },
     form: document.getElementById('myForm'),
     resultContainer: document.getElementById('resultContainer'),
   });
