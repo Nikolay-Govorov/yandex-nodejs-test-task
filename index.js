@@ -112,12 +112,12 @@ const getRandomRoute = () => {
   return routes[getRandom(0, routes.length - 1)];
 };
 
-const sendFormData = (route = getRandomRoute()) => {
+const sendFormData = () => {
   let resolve = null;
   const readyPromise = new Promise((r) => { resolve = r });
 
-  const send = (localeRoute, reolve) => {
-    fetch(`./fake-api/${route}.json`, {
+  const send = (localeRoute = getRandomRoute(), reolve) => {
+    fetch(`./fake-api/${localeRoute}.json`, {
       method: 'GET',
       mode: 'no-cors',
     })
@@ -135,7 +135,7 @@ const sendFormData = (route = getRandomRoute()) => {
       });
   };
 
-  send(route, resolve);
+  send(undefined, resolve);
 
   return readyPromise;
 }
