@@ -7,24 +7,117 @@
 
     <title>Тестовое задание</title>
 
-    <style>
+    <style type="text/css">
+      /* CSS reset */
+
+      *, *:before, *::after {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      /* UI style */
+
+      body {
+        width: 100%;
+        min-height: 100vh;
+
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+
+        background: #ededed;
+      }
+
+      #myForm, #resultContainer {
+        width: 400px;
+        max-width: 100%;
+      }
+
+      form {
+        background: #fff;
+      }
+
+      form > div {
+        padding: 15px 20px;
+        border-bottom: 1px solid #ececec;
+      }
+
+      input[type=text] {
+        display: block;
+
+        width: 100%;
+        height: 35px;
+
+        border: 1px solid #ccc;
+
+        padding: 5px 10px;
+        margin-top: 10px;
+
+        line-height: 25px;
+        font-size: 15px;
+
+        transition: border .3s;
+      }
+
+      input[type=submit] {
+        display: block;
+        width: 100%;
+        font-size: 1.3em;
+        padding: 5px 0;
+      }
+
+      #resultContainer {
+        padding: 0 20px;
+        text-align: center;
+        font-family: monospace;
+        letter-spacing: 1px;
+        font-size: 18px;
+        line-height: 30px;
+        color: #fff;
+
+        transition: all .3s ease;
+      }
+
+      .success + #resultContainer {
+        background: green;
+      }
+
+      .error + #resultContainer {
+        background: red;
+      }
+
+      /* Events */
+
       .error {
         border: 1px solid red;
       }
     </style>
   </head>
   <body>
-    <div class="wrapper">
-      <form action="" id="myForm">
-        <input type="text" name="fio" placeholder="ФИО">
-        <input type="text" name="email" placeholder="E-mail">
-        <input type="text" name="phone" placeholder="Phone">
+    <form action="" id="myForm">
+      <div>
+        <label for="fio">ФИО</label>
+        <input id="fio" type="text" name="fio" placeholder="ФИО">
+      </div>
 
+      <div>
+        <label for="email">E-mail</label>
+        <input id="email" type="text" name="email" placeholder="E-mail">
+      </div>
+
+      <div>
+        <label for="phone">Телефон</label>
+        <input id="phone" type="text" name="phone" placeholder="Телефон">
+      </div>
+
+      <div>
         <input id="submitButton" type="submit">
-      </form>
+      </div>
+    </form>
 
-      <div id="resultContainer"></div>
-    </div>
+    <div id="resultContainer"></div>
 
     <script src="./index.js" lang="javascript" type="text/javascript"></script>
   </body>
