@@ -1,4 +1,4 @@
-const myForm = document.getElementById('myForm');
+const myFormElement = document.getElementById('myForm');
 
 function validate() {
   // TODO: add validators
@@ -54,7 +54,7 @@ function validate() {
     },
 
     phone(value) {
-      const phonePattern = /^\+\d\(\d{3}\)\d{3}-\d{2}-\d{2}$/i;
+      const phonePattern = /^\+7\(\d{3}\)\d{3}-\d{2}-\d{2}$/i;
 
       if (!phonePattern.test(value)) {
         return false;
@@ -75,7 +75,10 @@ function validate() {
   };
 
   const errorFields = ['fio', 'email', 'phone'].reduce((errorFields, input) => {
-    if (!validators[input](myForm[input].value)) {
+    const inputValue = myFormElement[input].value;
+    const isValidInput = validators[input](inputValue);
+
+    if (!isValidInput) {
       errorFields.push(input);
     }
 
@@ -93,12 +96,14 @@ const submit = () => {
   const { isValid, errorFields } = validate();
 
   errorFields.forEach((input) => {
-    myForm[input].classList.add('error');
+    myFormElement[input].classList.add('error');
   });
 
   console.log('Submit');
 };
 
-myForm.addEventListener('submit', element => (element.preventDefault(), submit()));
+myFormElement.addEventListener('submit', element => (element.preventDefault(), submit()));
 
-window.myForm = { validate, getData, setData, submit };
+const myForm = { validate, getData, setData, submit };
+
+window.myForm = myForm;
