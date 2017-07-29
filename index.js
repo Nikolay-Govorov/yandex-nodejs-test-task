@@ -1,13 +1,13 @@
+/*
+ * Circuit need that would be in global
+ * scope was just the right methods
+ * */
 ;(function () {
-  const DISABLED = 'disabled';
+  const DISABLED = 'disabled'; // html attribute
 
-  const getAPIRoute = () => {
-    const getRandom = (min, max) => Math.floor(Math.random() * (max - min + 1) + min);
+  const getRandom = (min, max) => Math.floor(Math.random() * (max - min + 1) + min);
 
-    const routes = ['success', 'error', 'progress'];
-
-    return routes[getRandom(0, routes.length - 1)];
-  };
+  const getAPIRoute = (routes = ['success', 'error', 'progress']) => routes[getRandom(0, routes.length - 1)];
 
   class Input {
     constructor(DOMElement) {
@@ -22,7 +22,7 @@
       this.element.value = value;
     }
 
-    isValid() {}
+    isValid() {} // must be overridden
   }
 
   class FIOInput extends Input {
@@ -166,10 +166,10 @@
 
     submit() {
       // (1) Clear form
-      ['success', 'error'].forEach(deletedClass => this.form.classList.remove(deletedClass));
+      Object.keys(this.classes.input).forEach(deletedClass => this.form.classList.remove(deletedClass));
 
       Object.keys(this.inputs).forEach((inputName) => {
-        this.form[inputName].classList.remove('error');
+        this.form[inputName].classList.remove(this.classes.input.error);
       });
 
       this.form.submitButton.removeAttribute(DISABLED);
@@ -180,7 +180,7 @@
       const { isValid, errorFields } = this.validate();
 
       errorFields.forEach((inputName) => {
-        this.form[inputName].classList.add('error');
+        this.form[inputName].classList.add(this.classes.input.error);
       });
 
       if (!isValid) {
@@ -191,7 +191,7 @@
       this.form.submitButton.setAttribute(DISABLED, DISABLED);
 
       this.fetch().then(({ status, message = 'Success' }) => {
-        this.form.classList.add(status);
+        this.form.classList.add(this.classes.form[status] || '');
 
         this.resultContainer.innerText = message;
 
@@ -203,13 +203,8 @@
   // Public methods
   const form = new Form({
     CSSClasses: {
-      form: {
-        error: 'error',
-      },
-      input: {
-        error: 'error',
-        success: 'success',
-      },
+      form: { error: 'error' },
+      input: { error: 'error', success: 'success' },
     },
     form: document.getElementById('myForm'),
     resultContainer: document.getElementById('resultContainer'),
