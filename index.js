@@ -1,187 +1,192 @@
-const myFormElement = document.getElementById('myForm');
+;(function () {
+  const getRandomRoute = () => {
+    const getRandom = (min, max) => Math.floor(Math.random() * (max - min + 1) + min);
 
-function validate() {
-  // TODO: add validators
-  const validators = {
-    fio(value) {
-      const fio = value.trim();
+    const routes = ['success', 'error', 'progress'];
 
-      const words = fio.split(' ').filter(el => el !== '');
-
-      if (words.length !== 3) {
-        return false;
-      }
-
-      const isValidWorlds = words.reduce((isValid, word) => {
-        const wordPattern = /^[a-zа-яё]+$/i
-
-        if (!word || !wordPattern.test(word)) {
-          return false;
-        }
-
-        return isValid;
-      }, true);
-
-      return isValidWorlds;
-    },
-
-    email(value) {
-      if (value.match(/ /ig) !== null) {
-        return false;
-      }
-
-      const [address, host, ...unnecessary] = value.split('@');
-
-      if (!address || !host || unnecessary.length > 0) {
-        return false;
-      }
-
-      const allowedHosts = [
-        'ya.ru', 'yandex.ru', 'yandex.ua', 'yandex.by', 'yandex.kz', 'yandex.com',
-      ];
-
-      if (!allowedHosts.includes(host)) {
-        return false;
-      }
-
-      const illegalСharacters = /[\\\/\"\'\:\;(),]/ig;
-
-      if (address.match(illegalСharacters) !== null) {
-        return false;
-      }
-
-      return true;
-    },
-
-    phone(value) {
-      const phonePattern = /^\+7\(\d{3}\)\d{3}-\d{2}-\d{2}$/i;
-
-      if (!phonePattern.test(value)) {
-        return false;
-      }
-
-      const summNumbers = value
-        .replace(/\D+/ig, '')
-        .split('')
-        .map(number => parseInt(number, 10))
-        .reduce((summ, number) => summ + number, 0);
-
-      if (summNumbers > 30) {
-        return false;
-      }
-
-      return true;
-    },
+    return routes[getRandom(0, routes.length - 1)];
   };
 
-  const errorFields = ['fio', 'email', 'phone'].reduce((errorFields, input) => {
-    const inputValue = myFormElement[input].value;
-    const isValidInput = validators[input](inputValue);
+  class Form {
+    constructor() {
+      this.myFormElement = document.getElementById('myForm');
 
-    if (!isValidInput) {
-      errorFields.push(input);
+      this.myFormElement.addEventListener('submit', element => (element.preventDefault(), this.submit()));
     }
 
-    return errorFields;
-  }, []);
+    sendData() {
+      let resolve = null;
+      const readyPromise = new Promise((r) => { resolve = r });
 
-  return { isValid: !errorFields.length, errorFields };
-};
+      const send = (localeRoute = getRandomRoute(), reolve) => {
+        fetch(`./fake-api/${localeRoute}.json`, {
+          method: 'GET',
+          mode: 'no-cors',
+        })
+          .then(response => response.json())
+          .then((data) => {
+            if (data.status === 'progress') {
+              setTimeout(send.bind(null, getRandomRoute(), resolve), data.timeout); return;
+            }
 
-function getData() {
-  return ['fio', 'email', 'phone'].reduce((data, inputName) => {
-    return Object.assign(data, { [inputName]: myFormElement[inputName].value });
-  }, {});
-};
+            if (data.status === 'error') {
+              resolve(({ status: 'error', message: data.reason })); return;
+            }
 
-function setData(data) {
-  ['fio', 'email', 'phone'].forEach((inputName) => {
-    if (data[inputName] === undefined) {
-      throw new Error(`Incorrect data. Required record ${inputName}!`);
+            resolve(({ status: 'success' }));
+          });
+      };
+
+      send(undefined, resolve);
+
+      return readyPromise;
     }
 
-    myFormElement[inputName].value = data[inputName];
-  });
-};
+    setResponse(addedClass, message) {
+      this.myFormElement.classList.add(addedClass);
 
-const getRandom = (min, max) => Math.floor(Math.random() * (max - min + 1) + min);
+      resultContainer.innerText = message;
+    }
 
-const getRandomRoute = () => {
-  const routes = ['success', 'error', 'progress'];
+    validate() {
+      const validators = {
+        fio(value) {
+          const fio = value.trim();
 
-  return routes[getRandom(0, routes.length - 1)];
-};
+          const words = fio.split(' ').filter(el => el !== '');
 
-const sendFormData = () => {
-  let resolve = null;
-  const readyPromise = new Promise((r) => { resolve = r });
+          if (words.length !== 3) {
+            return false;
+          }
 
-  const send = (localeRoute = getRandomRoute(), reolve) => {
-    fetch(`./fake-api/${localeRoute}.json`, {
-      method: 'GET',
-      mode: 'no-cors',
-    })
-      .then(response => response.json())
-      .then((data) => {
-        if (data.status === 'progress') {
-          setTimeout(send.bind(null, getRandomRoute(), resolve), data.timeout); return;
+          const isValidWorlds = words.reduce((isValid, word) => {
+            const wordPattern = /^[a-zа-яё]+$/i
+
+            if (!word || !wordPattern.test(word)) {
+              return false;
+            }
+
+            return isValid;
+          }, true);
+
+          return isValidWorlds;
+        },
+
+        email(value) {
+          if (value.match(/ /ig) !== null) {
+            return false;
+          }
+
+          const [address, host, ...unnecessary] = value.split('@');
+
+          if (!address || !host || unnecessary.length > 0) {
+            return false;
+          }
+
+          const allowedHosts = [
+            'ya.ru', 'yandex.ru', 'yandex.ua', 'yandex.by', 'yandex.kz', 'yandex.com',
+          ];
+
+          if (!allowedHosts.includes(host)) {
+            return false;
+          }
+
+          const illegalСharacters = /[\\\/\"\'\:\;(),]/ig;
+
+          if (address.match(illegalСharacters) !== null) {
+            return false;
+          }
+
+          return true;
+        },
+
+        phone(value) {
+          const phonePattern = /^\+7\(\d{3}\)\d{3}-\d{2}-\d{2}$/i;
+
+          if (!phonePattern.test(value)) {
+            return false;
+          }
+
+          const summNumbers = value
+            .replace(/\D+/ig, '')
+            .split('')
+            .map(number => parseInt(number, 10))
+            .reduce((summ, number) => summ + number, 0);
+
+          if (summNumbers > 30) {
+            return false;
+          }
+
+          return true;
+        },
+      };
+
+      const errorFields = ['fio', 'email', 'phone'].reduce((errorFields, input) => {
+        const inputValue = this.myFormElement[input].value;
+        const isValidInput = validators[input](inputValue);
+
+        if (!isValidInput) {
+          errorFields.push(input);
         }
 
-        if (data.status === 'error') {
-          resolve(({ status: 'error', message: data.reason })); return;
+        return errorFields;
+      }, []);
+
+      return { isValid: !errorFields.length, errorFields };
+    }
+
+    getData() {
+      return ['fio', 'email', 'phone'].reduce((data, inputName) => {
+        return Object.assign(data, { [inputName]: this.myFormElement[inputName].value });
+      }, {});
+    }
+
+    setData(data) {
+      ['fio', 'email', 'phone'].forEach((inputName) => {
+        if (data[inputName] === undefined) {
+          throw new Error(`Incorrect data. Required record ${inputName}!`);
         }
 
-        resolve(({ status: 'success' }));
+        this.myFormElement[inputName].value = data[inputName];
       });
+    }
+
+    submit() {
+      // Clear form
+      ['success', 'error'].forEach(deletedClass => this.myFormElement.classList.remove(deletedClass));
+
+      ['fio', 'email', 'phone'].forEach((inputName) => {
+        this.myFormElement[inputName].classList.remove('error');
+      });
+
+      this.myFormElement.submitButton.removeAttribute('disabled');
+
+      resultContainer.innerText = '';
+
+      // Validate
+      const { isValid, errorFields } = this.validate();
+
+      errorFields.forEach((inputName) => {
+        this.myFormElement[inputName].classList.add('error');
+      });
+
+      if (!isValid) {
+        return;
+      }
+
+      // Send data
+      this.myFormElement.submitButton.setAttribute('disabled', '');
+
+      this.sendData()
+        .then(({ status, message = 'Success' }) => {
+          this.setResponse(status, message);
+
+          this.myFormElement.submitButton.removeAttribute('disabled');
+        });
+    }
   };
 
-  send(undefined, resolve);
+  const { validate, getData, setData, submit } = new Form();
 
-  return readyPromise;
-}
-
-const setResponseForm = (addedClass, message) => {
-  myFormElement.classList.add(addedClass);
-
-  resultContainer.innerText = message;
-};
-
-const submit = () => {
-  // Clear form
-  ['success', 'error'].forEach(deletedClass => myFormElement.classList.remove(deletedClass));
-
-  ['fio', 'email', 'phone'].forEach((inputName) => {
-    myFormElement[inputName].classList.remove('error');
-  });
-
-  myFormElement.submitButton.removeAttribute('disabled');
-
-  resultContainer.innerText = '';
-
-  // Validate
-  const { isValid, errorFields } = validate();
-
-  errorFields.forEach((inputName) => {
-    myFormElement[inputName].classList.add('error');
-  });
-
-  if (!isValid) {
-    return;
-  }
-
-  // Send data
-  myFormElement.submitButton.setAttribute('disabled', '');
-
-  sendFormData()
-    .then(({ status, message = 'Success' }) => {
-      setResponseForm(status, message);
-
-      myFormElement.submitButton.removeAttribute('disabled');
-    });
-};
-
-myFormElement.addEventListener('submit', element => (element.preventDefault(), submit()));
-
-const myForm = { validate, getData, setData, submit };
-
-window.myForm = myForm;
+  window.myForm = { validate, getData, setData, submit };
+})();
