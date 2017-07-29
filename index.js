@@ -2,10 +2,10 @@
  * Circuit need that would be in global
  * scope was just the right methods
  * */
-;(function () {
+(function () {
   const DISABLED = 'disabled'; // html attribute
 
-  const getRandom = (min, max) => Math.floor(Math.random() * (max - min + 1) + min);
+  const getRandom = (min, max) => Math.floor((Math.random() * ((max - min) + 1)) + min);
 
   const getAPIRoute = (routes = ['success', 'error', 'progress']) => routes[getRandom(0, routes.length - 1)];
 
@@ -22,7 +22,8 @@
       this.element.value = value;
     }
 
-    isValid() {} // must be overridden
+    // must be overridden
+    isValid() {} // eslint-disable-line class-methods-use-this
   }
 
   class FIOInput extends Input {
@@ -71,7 +72,7 @@
         return false;
       }
 
-      return address.match(/[\\\/\"\'\:\;(),]/ig) === null;
+      return address.match(/[\\/"':;(),]/ig) === null;
     }
   }
 
@@ -107,7 +108,7 @@
         phone: new PhoneInput(this.form.phone),
       };
 
-      this.form.addEventListener('submit', element => (element.preventDefault(), this.submit()));
+      this.form.addEventListener('submit', element => ((element.preventDefault(), this.submit())));
     }
 
     get data() {
@@ -128,10 +129,14 @@
     fetch() {
       let resolve = null;
 
+      const formData = Object.assign({}, this.data);
+
       (function send() {
         window.fetch(`./fake-api/${getAPIRoute()}.json`, {
-          method: 'GET',
+          method: 'POST',
           mode: 'no-cors',
+          body: JSON.stringify(formData),
+          headers: { 'Content-Type': 'application/json' },
         })
           .then(response => response.json())
           .then((data) => {
@@ -145,20 +150,20 @@
 
             resolve(({ status: 'success' }));
           });
-      })();
+      }());
 
-      return new Promise((r) => { resolve = r });
+      return new Promise((r) => { resolve = r; });
     }
 
     validate() {
-      const errorFields = Object.keys(this.inputs).reduce((errorFields, input) => {
+      const errorFields = Object.keys(this.inputs).reduce((fields, input) => {
         const isValidInput = this.inputs[input].isValid();
 
         if (!isValidInput) {
-          errorFields.push(input);
+          fields.push(input);
         }
 
-        return errorFields;
+        return fields;
       }, []);
 
       return { isValid: !errorFields.length, errorFields };
@@ -166,7 +171,8 @@
 
     submit() {
       // (1) Clear form
-      Object.keys(this.classes.input).forEach(deletedClass => this.form.classList.remove(deletedClass));
+      Object.keys(this.classes.input)
+        .forEach(deletedClass => this.form.classList.remove(deletedClass));
 
       Object.keys(this.inputs).forEach((inputName) => {
         this.form[inputName].classList.remove(this.classes.input.error);
@@ -214,6 +220,6 @@
     submit: form.submit,
     validate: form.validate,
     getData: () => form.data,
-    setData: (newData) => { form.data = newData },
+    setData: (newData) => { form.data = newData; },
   };
-})();
+}());
