@@ -26,13 +26,19 @@ function validate() {
     },
 
     email(value) {
-      if (value.match(/ /ig) !== null || value.match(/@/ig).length !== 1) {
+      if (value.match(/ /ig) !== null) {
         return false;
       }
 
-      const [address, host] = value.split('@');
+      const [address, host, ...unnecessary] = value.split('@');
 
-      const allowedHosts = ['ya.ru', 'yandex.ru', 'yandex.ua', 'yandex.by', 'yandex.kz', 'yandex.com'];
+      if (!address || !host || unnecessary.length > 0) {
+        return false;
+      }
+
+      const allowedHosts = [
+        'ya.ru', 'yandex.ru', 'yandex.ua', 'yandex.by', 'yandex.kz', 'yandex.com',
+      ];
 
       if (!allowedHosts.includes(host)) {
         return false;
@@ -71,10 +77,6 @@ function validate() {
   const errorFields = ['fio', 'email', 'phone'].reduce((errorFields, input) => {
     if (!validators[input](myForm[input].value)) {
       errorFields.push(input);
-    }
-
-    if (input === 'email') {
-      console.log(validators[input](myForm[input].value));
     }
 
     return errorFields;
