@@ -6,10 +6,24 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
 
     <title>Тестовое задание</title>
+
+    <style>
+      .error {
+        border: 1px solid red;
+      }
+    </style>
   </head>
   <body>
-    <div id="root">
-      Hello World
+    <div class="wrapper">
+      <form action="" id="myForm">
+        <input type="text" name="fio" placeholder="ФИО">
+        <input type="text" name="email" placeholder="E-mail">
+        <input type="text" name="phone" placeholder="Phone">
+
+        <input id="submitButton" type="submit">
+      </form>
+
+      <div id="resultContainer"></div>
     </div>
 
     <script src="./index.js" lang="javascript" type="text/javascript"></script>
