@@ -1,0 +1,26 @@
+{
+  "name": "yandex-nodejs-test-task",
+  "version": "0.1.0",
+  "description": "A test, for admission school of NodeJS from Yandex",
+  "main": "index.js",
+  "scripts": {
+    "lint": "eslint fake-api/ *.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Nikolay-Govorov/yandex-nodejs-test-task.git"
+  },
+  "author": "Nikolay Govorov <nikolay_govorov@bk.ru> (@Nikolay-Govorov)",
+  "bugs": {
+    "url": "https://github.com/Nikolay-Govorov/yandex-nodejs-test-task/issues"
+  },
+  "homepage": "https://github.com/Nikolay-Govorov/yandex-nodejs-test-task#readme",
+  "devDependencies": {
+    "eslint-config-airbnb-base": "^11.3.1",
+    "eslint-plugin-import": "^2.7.0"
+  },
+  "dependencies": {
+    "eslint": "^4.3.0"
+  }
+}
