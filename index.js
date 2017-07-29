@@ -30,6 +30,22 @@ function validate() {
     },
 
     phone(value) {
+      const phonePattern = /^\+\d\(\d{3}\)\d{3}-\d{2}-\d{2}$/i;
+
+      if (!phonePattern.test(value)) {
+        return false;
+      }
+
+      const summNumbers = value
+        .replace(/\D+/ig, '')
+        .split('')
+        .map(number => parseInt(number, 10))
+        .reduce((summ, number) => summ + number, 0);
+
+      if (summNumbers > 30) {
+        return false;
+      }
+
       return true;
     },
   };
