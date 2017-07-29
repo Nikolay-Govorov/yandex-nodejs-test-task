@@ -4,7 +4,25 @@ function validate() {
   // TODO: add validators
   const validators = {
     fio(value) {
-      return true;
+      const fio = value.trim();
+
+      const words = fio.split(' ').filter(el => el !== '');
+
+      if (words.length !== 3) {
+        return false;
+      }
+
+      const isValidWorlds = words.reduce((isValid, word) => {
+        const wordPattern = /^[a-zа-яё]+$/i
+
+        if (!word || !wordPattern.test(word)) {
+          return false;
+        }
+
+        return isValid;
+      }, true);
+
+      return isValidWorlds;
     },
 
     email(value) {
