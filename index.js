@@ -88,7 +88,11 @@ function validate() {
   return { isValid: !errorFields.length, errorFields };
 };
 
-function getData() {};
+function getData() {
+  return ['fio', 'email', 'phone'].reduce((data, inputName) => {
+    return Object.assign(data, { [inputName]: myFormElement[inputName].value });
+  }, {});
+};
 
 function setData(data) {};
 
