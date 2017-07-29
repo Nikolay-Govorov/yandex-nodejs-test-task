@@ -12,8 +12,16 @@
       this.element = DOMElement;
     }
 
+    get value() {
+      return this.element.value;
+    }
+
+    set value(value) {
+      this.element.value = value;
+    }
+
     isValid() {}
-  };
+  }
 
   class FIOInput extends Input {
     isValid() {
@@ -27,8 +35,8 @@
         return false;
       }
 
-      const isValidWorlds = words.reduce((isValid, word) => {
-        const wordPattern = /^[a-zа-яё]+$/i
+      return words.reduce((isValid, word) => {
+        const wordPattern = /^[a-zа-яё]+$/i;
 
         if (!word || !wordPattern.test(word)) {
           return false;
@@ -36,8 +44,6 @@
 
         return isValid;
       }, true);
-
-      return isValidWorlds;
     }
   }
 
@@ -63,13 +69,7 @@
         return false;
       }
 
-      const illegalСharacters = /[\\\/\"\'\:\;(),]/ig;
-
-      if (address.match(illegalСharacters) !== null) {
-        return false;
-      }
-
-      return true;
+      return address.match(/[\\\/\"\'\:\;(),]/ig) === null;
     }
   }
 
@@ -89,33 +89,45 @@
         .map(number => parseInt(number, 10))
         .reduce((summ, number) => summ + number, 0);
 
-      if (summNumbers > 30) {
-        return false;
-      }
-
-      return true;
+      return summNumbers <= 30;
     }
   }
 
   class Form {
-    constructor() {
-      this.myFormElement = document.getElementById('myForm');
+    constructor({ form, resultContainer }) {
+      this.form = form;
+      this.resultContainer = resultContainer;
 
       this.inputs = {
-        fio: new FIOInput(this.myFormElement.fio),
-        email: new EmailInput(this.myFormElement.email),
-        phone: new PhoneInput(this.myFormElement.phone),
+        fio: new FIOInput(this.form.fio),
+        email: new EmailInput(this.form.email),
+        phone: new PhoneInput(this.form.phone),
       };
 
-      this.myFormElement.addEventListener('submit', element => (element.preventDefault(), this.submit()));
+      this.form.addEventListener('submit', element => (element.preventDefault(), this.submit()));
     }
 
-    sendData() {
+    get data() {
+      return Object.keys(this.inputs)
+        .reduce((data, input) => Object.assign(data, { [input]: this.inputs[input].value }), {});
+    }
+
+    set data(data) {
+      Object.keys(this.inputs).forEach((inputName) => {
+        if (data[inputName] === undefined) {
+          return;
+        }
+
+        this.form[inputName].value = data[inputName];
+      });
+    }
+
+    fetch() {
       let resolve = null;
       const readyPromise = new Promise((r) => { resolve = r });
 
       const send = (localeRoute = getRandomRoute(), reolve) => {
-        fetch(`./fake-api/${localeRoute}.json`, {
+        window.fetch(`./fake-api/${localeRoute}.json`, {
           method: 'GET',
           mode: 'no-cors',
         })
@@ -138,15 +150,9 @@
       return readyPromise;
     }
 
-    setResponse(addedClass, message) {
-      this.myFormElement.classList.add(addedClass);
-
-      resultContainer.innerText = message;
-    }
-
     validate() {
       const errorFields = Object.keys(this.inputs).reduce((errorFields, input) => {
-        const inputValue = this.myFormElement[input].value;
+        const inputValue = this.form[input].value;
         const isValidInput = this.inputs[input].isValid();
 
         if (!isValidInput) {
@@ -159,39 +165,23 @@
       return { isValid: !errorFields.length, errorFields };
     }
 
-    getData() {
-      return ['fio', 'email', 'phone'].reduce((data, inputName) => {
-        return Object.assign(data, { [inputName]: this.myFormElement[inputName].value });
-      }, {});
-    }
-
-    setData(data) {
-      ['fio', 'email', 'phone'].forEach((inputName) => {
-        if (data[inputName] === undefined) {
-          throw new Error(`Incorrect data. Required record ${inputName}!`);
-        }
-
-        this.myFormElement[inputName].value = data[inputName];
-      });
-    }
-
     submit() {
       // Clear form
-      ['success', 'error'].forEach(deletedClass => this.myFormElement.classList.remove(deletedClass));
+      ['success', 'error'].forEach(deletedClass => this.form.classList.remove(deletedClass));
 
       Object.keys(this.inputs).forEach((inputName) => {
-        this.myFormElement[inputName].classList.remove('error');
+        this.form[inputName].classList.remove('error');
       });
 
-      this.myFormElement.submitButton.removeAttribute('disabled');
+      this.form.submitButton.removeAttribute('disabled');
 
-      resultContainer.innerText = '';
+      this.resultContainer.innerText = '';
 
       // Validate
       const { isValid, errorFields } = this.validate();
 
       errorFields.forEach((inputName) => {
-        this.myFormElement[inputName].classList.add('error');
+        this.form[inputName].classList.add('error');
       });
 
       if (!isValid) {
@@ -199,19 +189,29 @@
       }
 
       // Send data
-      this.myFormElement.submitButton.setAttribute('disabled', '');
+      this.form.submitButton.setAttribute('disabled', '');
 
-      this.sendData()
+      this.fetch()
         .then(({ status, message = 'Success' }) => {
-          this.setResponse(status, message);
+          this.form.classList.add(status);
 
-          this.myFormElement.submitButton.removeAttribute('disabled');
+          this.resultContainer.innerText = message;
+
+          this.form.submitButton.removeAttribute('disabled');
         });
     }
-  };
+  }
 
   // Public methods
-  const { validate, getData, setData, submit } = new Form();
+  const form = new Form({
+    form: document.getElementById('myForm'),
+    resultContainer: document.getElementById('resultContainer'),
+  });
 
-  window.myForm = { validate, getData, setData, submit };
+  window.myForm = {
+    submit: form.submit,
+    validate: form.validate,
+    getData: () => form.data,
+    setData: (newData) => { form.data = newData },
+  };
 })();
