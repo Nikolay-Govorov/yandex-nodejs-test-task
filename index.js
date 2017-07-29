@@ -26,6 +26,24 @@ function validate() {
     },
 
     email(value) {
+      if (value.match(/ /ig) !== null || value.match(/@/ig).length !== 1) {
+        return false;
+      }
+
+      const [address, host] = value.split('@');
+
+      const allowedHosts = ['ya.ru', 'yandex.ru', 'yandex.ua', 'yandex.by', 'yandex.kz', 'yandex.com'];
+
+      if (!allowedHosts.includes(host)) {
+        return false;
+      }
+
+      const illegalСharacters = /[\\\/\"\'\:\;(),]/ig;
+
+      if (address.match(illegalСharacters) !== null) {
+        return false;
+      }
+
       return true;
     },
 
@@ -53,6 +71,10 @@ function validate() {
   const errorFields = ['fio', 'email', 'phone'].reduce((errorFields, input) => {
     if (!validators[input](myForm[input].value)) {
       errorFields.push(input);
+    }
+
+    if (input === 'email') {
+      console.log(validators[input](myForm[input].value));
     }
 
     return errorFields;
