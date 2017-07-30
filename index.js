@@ -7,8 +7,6 @@
 
   const getRandom = (min, max) => Math.floor((Math.random() * ((max - min) + 1)) + min);
 
-  const getAPIRoute = (routes = ['success', 'error', 'progress']) => routes[getRandom(0, routes.length - 1)];
-
   class Input {
     constructor(DOMElement) {
       this.element = DOMElement;
@@ -126,13 +124,27 @@
       });
     }
 
+    getAction() {
+      if (this.form.hasAttribute('action')) {
+        return this.form.getAttribute('action');
+      }
+
+      // Fake action
+      const fakeRoutes = ['success', 'error', 'progress'];
+
+      const randomRoute = fakeRoutes[getRandom(0, fakeRoutes.length - 1)];
+
+      return `./fake-api/${randomRoute}.json`;
+    }
+
     fetch() {
       let resolve = null;
 
+      const action = () => this.getAction();
       const formData = Object.assign({}, this.data);
 
       (function send() {
-        window.fetch(`./fake-api/${getAPIRoute()}.json`, {
+        window.fetch(action(), {
           method: 'POST',
           mode: 'no-cors',
           body: JSON.stringify(formData),
