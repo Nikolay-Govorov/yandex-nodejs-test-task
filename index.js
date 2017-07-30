@@ -170,6 +170,10 @@
     }
 
     submit() {
+      if (this.form.submitButton.hasAttribute(DISABLED)) {
+        return;
+      }
+
       // (1) Clear form
       Object.keys(this.classes.input)
         .forEach(deletedClass => this.form.classList.remove(deletedClass));
@@ -218,9 +222,9 @@
     resultContainer: document.getElementById('resultContainer'),
   });
 
-  window.myForm = {
-    submit: form.submit,
-    validate: form.validate,
+  window.MyForm = {
+    submit: form.submit.bind(form),
+    validate: form.validate.bind(form),
     getData: () => form.data,
     setData: (newData) => { form.data = newData; },
   };
