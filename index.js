@@ -197,7 +197,9 @@
       this.form.submitButton.setAttribute(DISABLED, DISABLED);
 
       this.fetch().then(({ status, message = 'Success' }) => {
-        this.form.classList.add(this.classes.form[status] || '');
+        if (this.classes.form[status]) {
+          this.form.classList.add(this.classes.form[status]);
+        }
 
         this.resultContainer.innerText = message;
 
