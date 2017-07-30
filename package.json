@@ -4,7 +4,9 @@
   "description": "A test, for admission school of NodeJS from Yandex",
   "main": "index.js",
   "scripts": {
-    "lint": "eslint fake-api/ *.js",
+    "lint": "npm run lint:js && npm run lint:css",
+    "lint:js": "eslint fake-api/ *.js",
+    "lint:css": "stylelint *.css",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -19,6 +21,8 @@
   "devDependencies": {
     "eslint": "^4.3.0",
     "eslint-config-airbnb-base": "^11.3.1",
-    "eslint-plugin-import": "^2.7.0"
+    "eslint-plugin-import": "^2.7.0",
+    "stylelint": "^8.0.0",
+    "stylelint-config-standard": "^17.0.0"
   }
 }
